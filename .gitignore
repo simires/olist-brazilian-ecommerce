@@ -1,0 +1,8 @@
+# Dataset bruto do Kaggle - não sobe pro GitHub (é grande e já é público).
+# Baixe pelo link no README e coloque numa pasta data/ local.
+/data/
+*.csv
+
+# Arquivos de sistema operacional
+.DS_Store
+Thumbs.db
