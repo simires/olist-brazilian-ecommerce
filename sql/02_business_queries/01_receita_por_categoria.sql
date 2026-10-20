@@ -4,9 +4,8 @@
 -- Pergunta: Quais categorias de produto trazem mais receita hoje?
 
 -- Decisões de recorte aplicadas:
--- - Período: 2017-01 a 2018-08 (exclui 2016, pois a operação estava 
---   em fase de lançamento com volume não representativo; 
---   exclui set/out-2018, pois a coleta de dados foi interrompida no meio do mês)
+-- - Recorte temporal: aplicado via vw_stg_orders_validos
+--   (ver validacao/02_recorte_temporal.sql)
 -- - Pedidos com order_status = 'canceled' não contam como receita
 
 -- Receita é a soma do preço dos itens do pedido, sem frete 
@@ -23,16 +22,16 @@ LEFT JOIN product_category_name_translation pcnt 			-- LEFT JOIN, pois há produ
 	ON pcnt.product_category_name = p.product_category_name
 JOIN order_items oi 
 	ON oi.product_id = p.product_id 
-JOIN orders o
-	ON oi.order_id = o.order_id
-WHERE o.order_status != 'canceled' AND
-		o.order_purchase_timestamp >= '2017-01-01' AND 
-		o.order_purchase_timestamp < '2018-09-01'
+JOIN vw_stg_orders_validos vsov 
+	ON oi.order_id = vsov.order_id
+WHERE vsov.order_status != 'canceled'
 GROUP BY 
 	p.product_category_name, 
 	pcnt.product_category_name_english
 ORDER BY receita DESC
 
+
+-- ===================== Achados =====================
 -- As três categorias de produto que trazem mais receita atualmente são:
 -- Beleza e saúde: R$ 1.251.145,54
 -- Relógios e presentes: R$ 1.194.824,97
@@ -42,5 +41,5 @@ ORDER BY receita DESC
 -- ========= Aprendizados com essa consulta =========
 -- Descobri que deveria usar LEFT JOIN por causa dos 610 produtos que não possuíam categoria na tabela products.
 -- Se não usasse LEFT JOIN, a receita gerada por esses produtos seria negligenciada na consulta
-
+--
 -- Além disso, descobri o uso prático da função COALESCE, que foi útil para nomear a categoria de produtos "não informado".
