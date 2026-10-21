@@ -42,14 +42,12 @@ SELECT
         1
     ) AS pct_atraso,
     ROUND(AVG(np.nota_media), 2) AS nota_media_regiao
-FROM orders o
-JOIN customers c 
+FROM vw_stg_orders_validos o
+JOIN customers c
 	ON o.customer_id = c.customer_id
-LEFT JOIN nota_por_pedido np 				-- Pedidos que não foram avaliados também são inclusos com o LEFT JOIN.
+LEFT JOIN nota_por_pedido np				-- Pedidos que não foram avaliados também são inclusos com o LEFT JOIN.
 	ON o.order_id = np.order_id
 WHERE o.order_delivered_customer_date IS NOT NULL
-    AND o.order_purchase_timestamp >= '2017-01-01'
-    AND o.order_purchase_timestamp < '2018-09-01'
 GROUP BY c.customer_state
 ORDER BY pct_atraso DESC;
 
